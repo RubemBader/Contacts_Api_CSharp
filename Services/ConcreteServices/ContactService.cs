@@ -1,89 +1,58 @@
 using System.Collections.Generic;
-using Services.Dtos;
+using System.Threading.Tasks;
+using Data.RepositoriesAbstractions;
 using Services.ServicesAbstractions;
+using Utils.Dtos;
 
 namespace Services.ConcreteServices
 {
     public class ContactService : IContactService
     {
-        public string Create(Contact contato)
+        private readonly IContactRepository _contactRepository;
+
+        public ContactService(IContactRepository contactRepository)
         {
-            if (contato.Nome != "Jubiscleiton" && contato.Idade < 100) 
-            {
-                var novoContato = new Contact() { Id = contato.Id, Nome = contato.Nome, Idade = contato.Idade };
-                
-                return "Contato criado";
-            }
-            else 
-            {
-                return "O Contato não foi criado!";
-            }
+            _contactRepository = contactRepository;
+        }
+        public async Task Create(ContactRequestDto contato)
+        {
+            await _contactRepository.CreateAsync(contato);
         }
 
-        public List<ContactResponseDto> GetAll(string senha)
-{
-    var listaDeContatos = new List<Contact>()
-    {
-        new Contact() { Id = 1, Nome = "Professor Davy", Idade = 24, SenhaDoCartao = "123cba" },
-        new Contact() { Id = 2, Nome = "Tio Julio", Idade = 46, SenhaDoCartao = "321abc" }
-    };
-
-    if (senha == "123passatudo")
-    {
-        var listaDeDtosDeContatos = new List<ContactResponseDto>();
-
-        foreach (var contato in listaDeContatos)
+        public async Task<List<ContactResponseDto>> GetAll()
         {
-            listaDeDtosDeContatos.Add(
-                new ContactResponseDto()
-                {
-                    Id = contato.Id,
-                    Nome = contato.Nome,
-                    Idade = contato.Idade
-                }
-            );
+            //var zero = 1 - 1; "Exemplo de como tratar um erro"
+            //var divisao = 1 / zero; "Exemplo de como tratar um erro"
+
+            var listaDeContatos = await _contactRepository.GetAllAsync();
+
+            var listaDeDtosDeContatos = new List<ContactResponseDto>();
+
+            foreach (var contato in listaDeContatos)
+            {
+                listaDeDtosDeContatos.Add(
+                    new ContactResponseDto()
+                    {
+                        Id = contato.Id,
+                        Nome = contato.Nome,
+                        Idade = contato.Idade
+                    }
+                );
+            }
+
+            return listaDeDtosDeContatos;
+        }
+        public async Task Update(int id, ContactRequestDto contato)
+        {
+           await _contactRepository.UpdateAsync(id, contato);
         }
 
-        return listaDeDtosDeContatos;
-    }
-    else
-    {
-        return new List<ContactResponseDto>();
-    }
-}
-        public string Update(Contact contato)
+        public async Task Delete(int id)
         {
-            var contatoVazio = new Contact();
+            //var zero = 1 - 1; "Exemplo de como tratar um erro"
+            //var divisao = 1 / zero; "Exemplo de como tratar um erro"
 
-            if (contato.Nome.Length > 0 && contato.Idade > 0) 
-            {
-                contatoVazio.Id = contato.Id;
-                contatoVazio.Nome = contato.Nome;
-                contatoVazio.Idade = contato.Idade;
-
-                return "Contato atualizado";
-            }
-            else
-            {
-                return "O Contato não foi atualizado!";
-            }
-        }
-
-        public string Delete(Contact contato)
-        {
-            var contatoParaDeletar = new Contact() { Id = 1, Nome = "João deletado", Idade = 35};
-
-            if (contato.Nome == contatoParaDeletar.Nome &&
-                contato.Idade == contatoParaDeletar.Idade) 
-            {
-                contatoParaDeletar = null;
-
-                return "Contato apagado";
-            }
-            else
-            {
-                return "O Contato não foi apagado!";
-            }
+            await _contactRepository.DeleteAsync(id);
         }
     }
 }

@@ -1,4 +1,8 @@
 
+using System.Data;
+using Data.ConcreteRepositories;
+using Data.DatabaseConnection;
+using Data.RepositoriesAbstractions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -19,16 +23,22 @@ namespace Api
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+       public void ConfigureServices(IServiceCollection services)
+{
+       var connectionString = Configuration.GetValue<string>("DataBaseConnection");
+        
+        services.AddSingleton<IDbConnection>(new SqlConnectionFactory(connectionString).CreateConnection());
+
+        //Configuração de injeção de dependencia
+        services.AddScoped<IContactRepository, ContactRepository>();
+        services.AddScoped<IContactService, ContactService>();
+
+        services.AddControllers();
+        services.AddSwaggerGen(c =>
         {
-            services.AddScoped<IContactService, ContactService>();
-            services.AddControllers();
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Api", Version = "v1" });
-            });
-        }
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "ContactsApi", Version = "v1" });
+        });
+    }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

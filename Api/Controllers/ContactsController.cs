@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Services;
-using Services.Dtos;
 using Services.ServicesAbstractions;
+using Utils.Api;
+using Utils.Dtos; 
 
 namespace ContactsApi.Controllers
 {
@@ -18,35 +20,64 @@ namespace ContactsApi.Controllers
         }
 
         [HttpPost]
-        public string Create([FromBody] Contact contact) 
+        public async Task<IActionResult> Create([FromBody] ContactRequestDto contact) 
         {
-            var resultado = _contactService.Create(contact);
+            try
+            {
+                await _contactService.Create(contact);
 
-            return resultado;
+                return Ok(new ApiResponse());
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse(ex.Message));
+            } 
         }
 
-        [HttpGet("{senha}")]
-        public List<ContactResponseDto> Get([FromRoute] string senha)
+        [HttpGet]
+        public async Task<IActionResult> Get()
         {
-            var resultado = _contactService.GetAll(senha);
+            try
+            {
+                var result =  await _contactService.GetAll();
 
-            return resultado;
+                return Ok(new ApiResponse<List<ContactResponseDto>>(result));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse(ex.Message));
+            }
+
         }
 
-        [HttpPut]
-        public string Update([FromBody] Contact updatedContact) 
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] ContactRequestDto updatedContact)
         {
-            var resultado = _contactService.Update(updatedContact);
+            try
+            {
+                await _contactService.Update(id, updatedContact);
 
-            return resultado;
+                return Ok(new ApiResponse());
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse(ex.Message));
+            }
         }
 
-        [HttpDelete]
-        public string Delete([FromBody] Contact contact)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            var resultado = _contactService.Delete(contact);
+            try
+            {
+                await _contactService.Delete(id);
 
-            return resultado;
+                return Ok(new ApiResponse());
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse(ex.Message));
+            }
         }
     }
 }

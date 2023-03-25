@@ -1,13 +1,14 @@
 using System.Collections.Generic;
-using Services.Dtos;
+using System.Threading.Tasks;
+using Utils.Dtos; 
 
 namespace Services.ServicesAbstractions
 {
     public interface IContactService
-    {
-        public string Create(Contact contato);
-        public List<ContactResponseDto> GetAll(string senha);
-        public string Update(Contact contato);
-        public string Delete(Contact contato);
+    {                      
+        public Task Create(ContactRequestDto contato);
+        public Task<List<ContactResponseDto>> GetAll();
+        public Task Update(int id, ContactRequestDto contato);
+        public Task Delete(int id);
     }
 }
